@@ -1,0 +1,44 @@
+/* steam.css — reusable rising-steam overlay for food heroes.
+   Usage (hero image = object-fit:cover, centered, 16:9 source):
+   1) Put class "steam-host" on the absolutely-positioned media box that holds the <img>.
+   2) Inside it, after the <picture>/<img>, paste:
+      <div class="steam-stage" aria-hidden="true">
+        <div class="steam" style="--x:58%;--y:60%"><i><b></b></i><i><b></b></i><i><b></b></i><i><b></b></i></div>
+      </div>
+      --x/--y = where the food surface is, in % of the SOURCE image (works at every breakpoint,
+      the stage tracks the cover crop). Optional: --w/--h column size (% of image), --o opacity,
+      --c steam colour (rgb triplet). 1–5 <i> per source.
+   3) Paste the filter defs once per page (before </body>):
+      <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+      <filter id="stmA" x="-60%" y="-30%" width="220%" height="160%"><feTurbulence type="fractalNoise" baseFrequency=".013 .035" numOctaves="3" seed="3"/><feDisplacementMap in="SourceGraphic" scale="46" xChannelSelector="R" yChannelSelector="G"/><feGaussianBlur stdDeviation="4"/></filter>
+      <filter id="stmB" x="-60%" y="-30%" width="220%" height="160%"><feTurbulence type="fractalNoise" baseFrequency=".018 .028" numOctaves="3" seed="11"/><feDisplacementMap in="SourceGraphic" scale="54" xChannelSelector="G" yChannelSelector="R"/><feGaussianBlur stdDeviation="5"/></filter>
+      </svg>
+   Animates transform/opacity only; pointer-events:none; no layout impact; reduced-motion = static faint wisp. */
+.steam-host{container-type:size}
+.steam-stage{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+@supports (width:1cqh){.steam-stage{inset:auto;left:50%;top:50%;width:max(100cqw,177.78cqh);height:auto;aspect-ratio:16/9;transform:translate(-50%,-50%);overflow:visible}}
+.steam{position:absolute;left:var(--x,50%);top:var(--y,50%);width:var(--w,9%);height:var(--h,34%);transform:translate(-50%,-100%);opacity:var(--o,.75);pointer-events:none}
+.steam i{position:absolute;left:50%;bottom:0;width:62%;height:56%;margin-left:-31%;opacity:0;transform-origin:50% 100%;will-change:transform,opacity;animation:stm-rise var(--t,8s) cubic-bezier(.33,.1,.55,1) var(--d,0s) infinite}
+.steam b{position:absolute;inset:0;display:block;border-radius:50%;background:radial-gradient(closest-side,rgba(var(--c,255,255,255),.62),rgba(var(--c,255,255,255),.26) 50%,rgba(var(--c,255,255,255),0));filter:url(#stmA);will-change:transform;animation:stm-sway var(--s,3.6s) ease-in-out var(--d,0s) infinite alternate}
+.steam i:nth-child(1){--t:8.4s;--d:-.4s;--s:3.4s;left:44%}
+.steam i:nth-child(2){--t:9.6s;--d:-3.1s;--s:4.1s;left:57%}
+.steam i:nth-child(2) b{filter:url(#stmB)}
+.steam i:nth-child(3){--t:7.4s;--d:-5.6s;--s:3.1s;left:50%;width:52%;margin-left:-26%}
+.steam i:nth-child(4){--t:10s;--d:-7.2s;--s:4.6s;left:39%}
+.steam i:nth-child(4) b{filter:url(#stmB)}
+.steam i:nth-child(5){--t:8.8s;--d:-1.9s;--s:3.8s;left:62%;width:50%;margin-left:-25%}
+@keyframes stm-rise{
+ 0%{opacity:0;transform:translate3d(0,6%,0) scale(.55,.45)}
+ 12%{opacity:.9}
+ 55%{opacity:.5}
+ 100%{opacity:0;transform:translate3d(0,-115%,0) scale(1.35,1.5)}
+}
+@keyframes stm-sway{
+ 0%{transform:translate3d(-14%,0,0) rotate(-5deg) skewX(4deg)}
+ 100%{transform:translate3d(14%,0,0) rotate(6deg) skewX(-5deg)}
+}
+@media (prefers-reduced-motion:reduce){
+ .steam i,.steam b{animation:none;will-change:auto}
+ .steam i{opacity:0}
+ .steam i:first-child{opacity:.4;transform:translate3d(0,-35%,0) scale(1,1.1)}
+}
